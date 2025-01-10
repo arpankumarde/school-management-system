@@ -25,11 +25,14 @@ model School {
     tenantId  String
     tenant    Tenant    @relation(fields: [tenantId], references: [id])
     slug      String
+    iconLogo  String?
+    largeLogo String?
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
     students  Student[]
     teachers  Teacher[]
     Staff     Staff[]
+    classes   Class[]
 }
 
 model User {
@@ -38,45 +41,134 @@ model User {
     password  String
     tenantId  String
     tenant    Tenant   @relation(fields: [tenantId], references: [id])
+    phone     String?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
 model Student {
-    id        String   @id @default(uuid())
-    name      String
-    email     String   @unique
-    password  String
-    tenantId  String
-    tenant    Tenant   @relation(fields: [tenantId], references: [id])
-    schoolId  String
-    school    School   @relation(fields: [schoolId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           String       @id @default(uuid())
+    name         String
+    email        String       @unique
+    password     String
+    tenantId     String
+    tenant       Tenant       @relation(fields: [tenantId], references: [id])
+    schoolId     String
+    school       School       @relation(fields: [schoolId], references: [id])
+    classId      String?
+    class        Class?       @relation(fields: [classId], references: [id])
+    phone        String?
+    roleId       String?
+    role         Role?        @relation(fields: [roleId], references: [id])
+    houseId      String?
+    house        House?       @relation(fields: [houseId], references: [id])
+    dob          DateTime?
+    aadharNumber BigInt?
+    photo        String?
+    bloodGroup   String?
+    createdAt    DateTime     @default(now())
+    updatedAt    DateTime     @updatedAt
+    Attendance   Attendance[]
+    subjects     Subject[]    @relation("StudentSubjects")
 }
 
 model Teacher {
-    id        String   @id @default(uuid())
-    name      String
-    email     String   @unique
-    password  String
-    tenantId  String
-    tenant    Tenant   @relation(fields: [tenantId], references: [id])
-    schoolId  String
-    school    School   @relation(fields: [schoolId], references: [id])
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id             String         @id @default(uuid())
+    name           String
+    email          String         @unique
+    password       String
+    tenantId       String
+    tenant         Tenant         @relation(fields: [tenantId], references: [id])
+    schoolId       String
+    school         School         @relation(fields: [schoolId], references: [id])
+    phone          String?
+    dob            DateTime?
+    aadharNumber   BigInt?
+    dateOfJoining  DateTime?
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    Class          Class[]
+    Attendance     Attendance[]
+    subjects       Subject[]      @relation("TeacherSubjects")
+    teacherClasses TeacherClass[]
 }
 
 model Staff {
+    id          String   @id @default(uuid())
+    name        String
+    email       String   @unique
+    password    String
+    tenantId    String
+    tenant      Tenant   @relation(fields: [tenantId], references: [id])
+    schoolId    String?
+    school      School?  @relation(fields: [schoolId], references: [id])
+    phone       String?
+    designation String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model Class {
+    id             String         @id @default(uuid())
+    name           String
+    section        String
+    schoolId       String
+    school         School         @relation(fields: [schoolId], references: [id])
+    classTeacherId String?
+    classTeacher   Teacher?       @relation(fields: [classTeacherId], references: [id])
+    students       Student[]
+    attendances    Attendance[]
+    createdAt      DateTime       @default(now())
+    updatedAt      DateTime       @updatedAt
+    teacherClasses TeacherClass[]
+}
+
+model Attendance {
     id        String   @id @default(uuid())
+    date      DateTime
+    present   Boolean
+    studentId String
+    student   Student  @relation(fields: [studentId], references: [id])
+    classId   String
+    class     Class    @relation(fields: [classId], references: [id])
+    teacherId String?
+    teacher   Teacher? @relation(fields: [teacherId], references: [id])
+}
+
+model Subject {
+    id             String         @id @default(uuid())
+    name           String
+    students       Student[]      @relation("StudentSubjects")
+    teachers       Teacher[]      @relation("TeacherSubjects")
+    teacherClasses TeacherClass[]
+}
+
+model Role {
+    id          String    @id @default(uuid())
+    name        String
+    description String?
+    level       Int       @default(1)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    Student     Student[]
+}
+
+model House {
+    id        String    @id @default(uuid())
     name      String
-    email     String   @unique
-    password  String
-    tenantId  String
-    tenant    Tenant   @relation(fields: [tenantId], references: [id])
-    schoolId  String?
-    school    School?  @relation(fields: [schoolId], references: [id])
+    students  Student[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+}
+
+model TeacherClass {
+    id        String   @id @default(uuid())
+    teacherId String
+    teacher   Teacher  @relation(fields: [teacherId], references: [id])
+    subjectId String
+    subject   Subject  @relation(fields: [subjectId], references: [id])
+    classId   String
+    class     Class    @relation(fields: [classId], references: [id])
     createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    updatedAt DateTime @default(now())
 }
